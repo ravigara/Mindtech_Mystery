@@ -141,13 +141,11 @@ function _stabLoop(now) {
         const inSafe    = _barPos >= safeStart && _barPos <= safeEnd;
 
         if (inSafe) {
-            // In safe zone: heavy friction + pull toward centre
-            // This keeps the bar drifting gently around the middle
+            // In safe zone: apply friction to slow it down.
+            // No centering pull — it will just decelerate and keep drifting slowly.
             _barVel *= (1 - 6.0 * dt);
-            const centerDist = 50 - _barPos;
-            _barVel += centerDist * 3.5 * dt;
         } else {
-            // Outside safe zone: strong push toward centre
+            // Outside safe zone: strong push toward centre so it comes back fast
             const dir = 50 - _barPos;
             _barVel += Math.sign(dir) * STABILIZER.playerForce * dt;
             _barVel *= (1 - 1.5 * dt);
