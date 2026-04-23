@@ -50,7 +50,7 @@
             app_build_command: "npm run build"
             github_id_token: ${{ steps.idtoken.outputs.result }}
           env:
-            API_BASE_URL: "https://mindtechmystery.azurewebsites.net"
+            API_BASE_URL: "mindtechmystery-h8c5c7azadftg2hh.southeastasia-01.azurewebsites.net"
             SKIP_DEPLOY_ON_MISSING_SECRETS: true
 
     close_pull_request_job:
