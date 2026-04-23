@@ -136,8 +136,21 @@ function _stabLoop(now) {
 
     /* ── Player counteraction ── */
     if (_holding) {
-        const dir = 50 - _barPos;
-        _barVel += Math.sign(dir) * STABILIZER.playerForce * dt;
+        const safeStart = (100 - STABILIZER.safeZoneWidth) / 2;
+        const safeEnd   = safeStart + STABILIZER.safeZoneWidth;
+        const inSafe    = _barPos >= safeStart && _barPos <= safeEnd;
+
+        if (inSafe) {
+            // In safe zone: apply strong friction to keep the bar slow
+            // (but not zero — a gentle drift keeps it feeling alive)
+            _barVel *= (1 - 4.0 * dt);
+        } else {
+            // Outside safe zone: strong push toward centre
+            const dir = 50 - _barPos;
+            _barVel += Math.sign(dir) * STABILIZER.playerForce * dt;
+            // Also apply friction so it doesn't overshoot into the safe zone
+            _barVel *= (1 - 1.5 * dt);
+        }
     }
 
     /* ── Apply velocity ── */
