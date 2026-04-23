@@ -1,34 +1,62 @@
-# MindTech Mystery Azure Deployment
+# MindTech Mystery – Vercel Deployment
 
-This project remains a static frontend plus FastAPI backend. The only changes added here are for Azure deployment.
+A multi-stage puzzle challenge: static frontend + FastAPI backend, deployed as a single Vercel project.
 
-## Frontend: Azure Static Web Apps
+## Architecture
 
-The frontend now has a build step that outputs `frontend/dist` and injects the backend base URL from an environment variable.
+| Component | Technology | Vercel Runtime |
+|-----------|-----------|----------------|
+| Frontend  | HTML / CSS / JS | Static Files (`frontend/`) |
+| Backend   | FastAPI (Python) | Serverless Function (`api/`) |
 
-### Local build
+All API endpoints are served under `/api/*` on the same domain as the frontend — no CORS issues in production.
 
-```bash
-cd frontend
-npm run build
+## Project Structure
+
+```
+├── api/
+│   └── index.py          # Vercel serverless entry point (re-exports FastAPI app)
+├── backend/
+│   ├── main.py            # FastAPI application (answer validation, rate limiting)
+│   └── requirements.txt   # Python dependencies (backend-local reference)
+├── frontend/
+│   ├── index.html         # Main puzzle app
+│   ├── puzzle.html         # Sliding puzzle (embedded via iframe)
+│   ├── env.js             # Runtime config (API_BASE_URL)
+│   ├── css/               # Styles
+│   ├── js/                # Application logic
+│   └── assets/            # Images and media
+├── requirements.txt       # Python dependencies (Vercel reads this)
+└── vercel.json            # Vercel project configuration
 ```
 
-### Azure Static Web Apps configuration
+## Deploy to Vercel
 
-- App location: `frontend`
-- Output location: `dist`
-- Build command: `npm run build`
-- Build environment variable: `API_BASE_URL=https://<your-app-service-name>.azurewebsites.net`
+### One-click
 
-`frontend/staticwebapp.config.json` is included for Static Web Apps routing, and the build writes the configured API URL into `dist/env.js`.
+1. Push this repo to GitHub / GitLab / Bitbucket.
+2. Import the repo at [vercel.com/new](https://vercel.com/new).
+3. Vercel auto-detects `vercel.json` — no extra config needed.
+4. Click **Deploy**.
 
-## Backend: Azure App Service
+### CLI
 
-The backend already exposes `app` from `backend/main.py` and already includes the required FastAPI packages in `backend/requirements.txt`.
+```bash
+npm i -g vercel
+vercel
+```
 
-Deploy the `backend/` folder as the App Service application root.
+### Environment Variables (optional)
 
-### Local run
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `ALLOWED_ORIGINS` | Comma-separated list of allowed CORS origins | `*` (all origins) |
+
+Set via **Vercel Dashboard → Settings → Environment Variables** or `vercel env add`.
+
+## Local Development
+
+### Backend
 
 ```bash
 cd backend
@@ -36,22 +64,20 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-### Azure App Service configuration
+### Frontend
 
-- Startup command: `startup.txt`
-- App setting: `ALLOWED_ORIGINS=https://<your-static-web-app-domain>`
-
-`backend/startup.txt` contains:
+Serve the `frontend/` directory with any static file server. For example:
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000
+cd frontend
+npx serve .
 ```
 
-If you need multiple frontend origins, set `ALLOWED_ORIGINS` to a comma-separated list.
+> **Note:** For local development, edit `frontend/env.js` and set `API_BASE_URL` to `http://localhost:8000` so the frontend can reach the local backend.
 
 ## Deployment Check
 
 - No puzzle logic was changed.
 - No vault or validation logic was changed.
 - No UI or UX behavior was changed.
-- Only Azure deployment and configuration support was added.
+- Only deployment configuration was migrated from Azure to Vercel.

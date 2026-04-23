@@ -1,7 +1,4 @@
 {
   "name": "mindtech-mystery-frontend",
-  "private": true,
-  "scripts": {
-    "build": "node build.js"
-  }
+  "private": true
 }
