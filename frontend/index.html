@@ -133,7 +133,7 @@
                 <!-- Instruction -->
                 <div class="puzzle-instruction">
                     <span class="instruction-icon">🧩</span>
-                    <p>Rearrange the tiles by clicking on pieces adjacent to the empty space. When solved, the image will reveal a <strong>4-character alphanumeric code</strong>.</p>
+                    <p>Rearrange the tiles by clicking on pieces adjacent to the empty space. When solved, the last <strong>3 characters</strong> before the blank tile form the code.</p>
                 </div>
 
                 <!-- Embedded Puzzle iframe -->
@@ -146,7 +146,7 @@
                 <div class="stage2-input-section">
                     <div class="input-group">
                         <label for="stage2-input">Enter the code revealed after solving the puzzle:</label>
-                        <input type="text" id="stage2-input" class="input-field" maxlength="4" placeholder="_ _ _ _" autocomplete="off">
+                        <input type="text" id="stage2-input" class="input-field" maxlength="3" placeholder="_ _ _" autocomplete="off" style="text-transform: uppercase; letter-spacing: 0.3em;">
                         <div id="stage2-feedback" class="feedback"></div>
                     </div>
                     <div class="btn-group">
@@ -180,8 +180,8 @@
                         <input type="text" id="vault-code1" class="input-field" maxlength="8" placeholder="_ _ _ _ _ _ _ _" autocomplete="off" style="text-transform: uppercase; letter-spacing: 0.2em;">
                     </div>
                     <div class="input-group">
-                        <label for="vault-code2">4-Character Code (Stage 2):</label>
-                        <input type="text" id="vault-code2" class="input-field" maxlength="4" placeholder="_ _ _ _" autocomplete="off">
+                        <label for="vault-code2">3-Character Code (Stage 2):</label>
+                        <input type="text" id="vault-code2" class="input-field" maxlength="3" placeholder="_ _ _" autocomplete="off" style="text-transform: uppercase; letter-spacing: 0.2em;">
                     </div>
                     <div id="vault-feedback" class="feedback"></div>
                     <button id="btn-vault-unlock" class="btn btn-primary btn-glow" onclick="submitVault()">

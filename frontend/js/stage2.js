@@ -2,8 +2,9 @@
  * Stage 2: Sliding Puzzle (Embedded via iframe)
  * 
  * The puzzle runs inside an iframe (puzzle.html).
- * We CANNOT detect puzzle completion automatically (iframe limitation).
- * The user must manually enter the revealed code after solving.
+ * Tiles show parts of a fantasy landscape with character labels.
+ * Solved order: 2, A, 7, K, 5, Q, 9, B, [blank]
+ * The code is the last 3 characters: Q9B
  * Validation happens via backend API.
  */
 
@@ -21,8 +22,8 @@ async function submitStage2() {
     const continueBtn = document.getElementById('btn-stage2-continue');
     const answer = input.value.trim();
 
-    if (!answer || answer.length !== 4) {
-        showFeedback('stage2-feedback', '⚠ Please enter the 4-character code from the puzzle.', false);
+    if (!answer || answer.length !== 3) {
+        showFeedback('stage2-feedback', '⚠ Please enter the 3-character code from the puzzle.', false);
         return;
     }
 
@@ -57,6 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (input) {
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') submitStage2();
+        });
+        // Only allow alphanumeric input
+        input.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
         });
     }
 });

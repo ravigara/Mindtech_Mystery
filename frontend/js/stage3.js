@@ -20,8 +20,8 @@ async function submitVault() {
         code1Input.focus();
         return;
     }
-    if (!code2 || code2.length !== 4) {
-        showFeedback('vault-feedback', '⚠ Enter the 4-character code from Stage 2.', false);
+    if (!code2 || code2.length !== 3) {
+        showFeedback('vault-feedback', '⚠ Enter the 3-character code from Stage 2.', false);
         code2Input.focus();
         return;
     }

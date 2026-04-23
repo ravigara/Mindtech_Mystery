@@ -43,7 +43,7 @@ app.add_middleware(
 # --- Answer Store (server-side only, never exposed) ---
 ANSWERS = {
     "stage1": "OKPEVFEI",
-    "stage2": "A9X3",
+    "stage2": "Q9B",
     "stage4": "sister",
 }
 

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sliding Puzzle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -54,11 +57,25 @@
             cursor: pointer;
             border: 2px solid rgba(139, 92, 246, 0.18);
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
-            background-size: 330px 330px;
+            position: relative;
+            overflow: hidden;
         }
         .tile:hover:not(.empty) {
             border-color: rgba(139, 92, 246, 0.6);
             box-shadow: 0 0 12px rgba(139, 92, 246, 0.35);
+        }
+        .tile .label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.5);
+            -webkit-text-stroke: 1.5px rgba(255,255,255,0.15);
+            pointer-events: none;
+            z-index: 2;
         }
         .tile.empty {
             background: rgba(10, 14, 26, 0.7) !important;
@@ -93,6 +110,16 @@
             animation: fadeIn 0.5s ease;
         }
         .solved-banner.show { display: block; }
+        .code-hint {
+            display: none;
+            text-align: center;
+            color: #c4b5fd;
+            font-size: 0.85rem;
+            padding: 4px 0;
+            animation: fadeIn 0.5s ease;
+        }
+        .code-hint.show { display: block; }
+        .code-hint strong { color: #8b5cf6; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
     </style>
 </head>
@@ -106,12 +133,26 @@
             <button class="btn" onclick="shuffle()">🔀 Shuffle</button>
             <button class="btn" onclick="reset()">🔄 Reset</button>
         </div>
-        <div class="solved-banner" id="banner">✅ PUZZLE SOLVED — Read the code!</div>
+        <div class="solved-banner" id="banner">✅ PUZZLE SOLVED — Read the last 3 characters!</div>
+        <div class="code-hint" id="code-hint">The code is the <strong>last 3 characters</strong> before the blank tile</div>
     </div>
 
     <script>
         const SIZE = 3, TOTAL = 9, EMPTY = 8, SHUFFLE_MOVES = 200;
         let tiles = [], emptyPos = 8, moves = 0, solved = false;
+
+        // Tile data: index → { label, color }
+        // Solved order: 2, A, 7, K, 5, Q, 9, B, [blank]
+        const TILE_DATA = [
+            { label: '2', color: '#d946ef' },  // pink/magenta
+            { label: 'A', color: '#22c55e' },  // green
+            { label: '7', color: '#3b82f6' },  // blue
+            { label: 'K', color: '#8b5cf6' },  // purple
+            { label: '5', color: '#f59e0b' },  // orange/amber
+            { label: 'Q', color: '#ef4444' },  // red
+            { label: '9', color: '#2563eb' },  // dark blue
+            { label: 'B', color: '#14b8a6' },  // teal
+        ];
 
         function init() {
             tiles = [0,1,2,3,4,5,6,7,8];
@@ -119,6 +160,7 @@
             moves = 0;
             solved = false;
             document.getElementById('banner').classList.remove('show');
+            document.getElementById('code-hint').classList.remove('show');
             updateMoves();
         }
 
@@ -155,10 +197,21 @@
                 const d = document.createElement('div');
                 d.className = 'tile' + (tiles[i] === EMPTY ? ' empty' : '');
                 if (tiles[i] !== EMPTY) {
-                    const sc = tiles[i] % SIZE, sr = Math.floor(tiles[i] / SIZE);
+                    const tileIndex = tiles[i];
+                    const sc = tileIndex % SIZE, sr = Math.floor(tileIndex / SIZE);
+
+                    // Background image for the tile
                     d.style.backgroundImage = "url('assets/puzzle-image.png')";
                     d.style.backgroundSize = gs + 'px ' + gs + 'px';
                     d.style.backgroundPosition = '-' + (sc*ts) + 'px -' + (sr*ts) + 'px';
+
+                    // Character label overlay
+                    const label = document.createElement('span');
+                    label.className = 'label';
+                    label.textContent = TILE_DATA[tileIndex].label;
+                    label.style.color = TILE_DATA[tileIndex].color;
+                    d.appendChild(label);
+
                     d.onclick = () => click(i);
                 }
                 grid.appendChild(d);
@@ -197,12 +250,20 @@
 
         function onSolved() {
             solved = true;
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            const img = document.createElement('div');
-            img.style.cssText = 'width:100%;height:100%;background:url(assets/puzzle-image.png) center/cover;border-radius:8px;grid-column:1/-1;grid-row:1/-1;border:2px solid rgba(0,255,136,0.4);box-shadow:0 0 30px rgba(0,255,136,0.2);';
-            grid.appendChild(img);
             document.getElementById('banner').classList.add('show');
+            document.getElementById('code-hint').classList.add('show');
+
+            // Re-render one final time to show completed state with borders highlighted
+            const grid = document.getElementById('grid');
+            grid.style.borderColor = 'rgba(0, 255, 136, 0.4)';
+            grid.style.boxShadow = '0 0 40px rgba(0, 255, 136, 0.2)';
+
+            // Highlight all tiles
+            Array.from(grid.children).forEach(tile => {
+                if (!tile.classList.contains('empty')) {
+                    tile.style.borderColor = 'rgba(0, 255, 136, 0.3)';
+                }
+            });
         }
 
         function updateMoves() { document.getElementById('moves').textContent = moves; }
