@@ -264,27 +264,7 @@ function showFeedback(elementId, message, isSuccess) {
 document.addEventListener('DOMContentLoaded', () => {
     createParticles();
 
-    const hasState = loadState();
-    if (hasState && gameState.currentStage !== 'intro') {
-        // Restore previous session
-        if (gameState.startTime && gameState.currentStage !== 'complete') {
-            startTimer();
-        }
-
-        // Restore solved UI states
-        if (gameState.stage1Solved) {
-            const btn = document.getElementById('btn-stage1-continue');
-            if (btn) btn.disabled = false;
-            showFeedback('stage1-feedback', '✓ Correct! You may continue.', true);
-        }
-
-        if (gameState.stage2Solved) {
-            const btn = document.getElementById('btn-stage2-continue');
-            if (btn) btn.disabled = false;
-        }
-
-        showStage(gameState.currentStage);
-    } else {
-        showStage('intro');
-    }
+    // Always start fresh — no session persistence
+    clearState();
+    showStage('intro');
 });
