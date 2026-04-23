@@ -5,7 +5,11 @@
       branches:
         - main
     pull_request:
-      types: [opened, synchronize, reopened, closed]
+      types:
+        - opened
+        - synchronize
+        - reopened
+        - closed
       branches:
         - main
 
@@ -42,15 +46,15 @@
           with:
             azure_static_web_apps_api_token:
   ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GRAY_HILL_0D4E07800 }}
-            action: "upload"
-            app_location: "./frontend"
+            action: upload
+            app_location: ./frontend
             api_location: ""
-            output_location: "dist"
-            app_build_command: "npm run build"
+            output_location: dist
+            app_build_command: npm run build
             github_id_token: ${{ steps.idtoken.outputs.result }}
           env:
             API_BASE_URL:
-  "https://mindtechmystery-h8c5c7azadftg2hh.southeastasia-01.azurewebsites.net"
+  https://mindtechmystery-h8c5c7azadftg2hh.southeastasia-01.azurewebsites.net
             SKIP_DEPLOY_ON_MISSING_SECRETS: true
 
     close_pull_request_job:
@@ -65,4 +69,4 @@
           with:
             azure_static_web_apps_api_token:
   ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GRAY_HILL_0D4E07800 }}
-            action: "close"
+            action: close
