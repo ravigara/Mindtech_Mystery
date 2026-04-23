@@ -1,16 +1,17 @@
 /**
- * Stage 1: Quick Decode
- * Cipher: D-B-G → 4-2-7 → 427
+ * Stage 1: Coded Language
+ * Pattern: each letter is shifted by +2 in the alphabet
+ * MINDTECH → OKPEVFEI (answer is 8 uppercase letters)
  */
 
 async function submitStage1() {
     const input = document.getElementById('stage1-input');
     const submitBtn = document.getElementById('btn-stage1-submit');
     const continueBtn = document.getElementById('btn-stage1-continue');
-    const answer = input.value.trim();
+    const answer = input.value.trim().toUpperCase();
 
-    if (!answer || answer.length !== 3) {
-        showFeedback('stage1-feedback', '⚠ Please enter a 3-digit number.', false);
+    if (!answer || answer.length !== 8) {
+        showFeedback('stage1-feedback', '⚠ Please enter an 8-letter coded word.', false);
         return;
     }
 
@@ -24,7 +25,7 @@ async function submitStage1() {
     submitBtn.querySelector('span').textContent = 'Submit';
 
     if (result.correct) {
-        showFeedback('stage1-feedback', '✓ Correct! Code decoded successfully.', true);
+        showFeedback('stage1-feedback', '✓ Correct! Code cracked successfully.', true);
         gameState.stage1Solved = true;
         gameState.stage1Answer = answer;
         saveState();
@@ -49,9 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitStage1();
             }
         });
-        // Only allow numeric input
+        // Only allow alphabetic input
         input.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            e.target.value = e.target.value.replace(/[^A-Za-z]/g, '').toUpperCase();
         });
     }
 });

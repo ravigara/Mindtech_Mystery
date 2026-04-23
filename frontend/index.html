@@ -73,39 +73,39 @@
             </div>
         </section>
 
-        <!-- Stage 1: Quick Decode -->
+        <!-- Stage 1: Coded Language -->
         <section id="stage-1" class="stage">
             <div class="stage-card">
                 <div class="stage-header">
                     <span class="stage-badge">STAGE 01</span>
-                    <h2>Quick Decode</h2>
-                    <p class="stage-subtitle">Crack the cipher to reveal the 3-digit code</p>
+                    <h2>Coded Language</h2>
+                    <p class="stage-subtitle">Crack the pattern to decode the word</p>
                 </div>
                 <div class="cipher-display" id="cipher-display">
-                    <div class="cipher-label">INTERCEPTED CIPHER</div>
-                    <div class="cipher-text">
-                        <span class="cipher-char" style="--delay: 0">D</span>
-                        <span class="cipher-sep">-</span>
-                        <span class="cipher-char" style="--delay: 1">B</span>
-                        <span class="cipher-sep">-</span>
-                        <span class="cipher-char" style="--delay: 2">G</span>
-                    </div>
+                    <div class="cipher-label">INTERCEPTED TRANSMISSIONS</div>
                     <div class="cipher-key">
-                        <div class="key-label">CIPHER KEY</div>
-                        <div class="key-grid">
-                            A=1 &nbsp; B=2 &nbsp; C=3 &nbsp; D=4 &nbsp; E=5 &nbsp; F=6 &nbsp; G=7 &nbsp; H=8 &nbsp; I=9
+                        <div class="key-grid" style="font-size: 1.1em; letter-spacing: 0.05em;">
+                            PLANET &nbsp;→&nbsp; <strong>RMCPEU</strong>
                         </div>
-                        <div class="key-grid">
-                            J=10 &nbsp; K=11 &nbsp; L=12 &nbsp; M=13 &nbsp; N=14 &nbsp; O=15 &nbsp; P=16 &nbsp; Q=17 &nbsp; R=18
+                        <div class="key-grid" style="font-size: 1.1em; letter-spacing: 0.05em;">
+                            MARKET &nbsp;→&nbsp; <strong>OCTLGV</strong>
                         </div>
-                        <div class="key-grid">
-                            S=19 &nbsp; T=20 &nbsp; U=21 &nbsp; V=22 &nbsp; W=23 &nbsp; X=24 &nbsp; Y=25 &nbsp; Z=26
-                        </div>
+                    </div>
+                    <div class="cipher-text" style="margin-top: 1.2rem;">
+                        <span class="cipher-char" style="--delay: 0">M</span>
+                        <span class="cipher-char" style="--delay: 1">I</span>
+                        <span class="cipher-char" style="--delay: 2">N</span>
+                        <span class="cipher-char" style="--delay: 3">D</span>
+                        <span class="cipher-char" style="--delay: 4">T</span>
+                        <span class="cipher-char" style="--delay: 5">E</span>
+                        <span class="cipher-char" style="--delay: 6">C</span>
+                        <span class="cipher-char" style="--delay: 7">H</span>
+                        <span style="margin-left: 0.8rem; color: var(--accent); font-weight: 700;">→ &nbsp;?</span>
                     </div>
                 </div>
                 <div class="input-group">
-                    <label for="stage1-input">Enter the 3-digit code:</label>
-                    <input type="text" id="stage1-input" class="input-field" maxlength="3" pattern="[0-9]{3}" placeholder="_ _ _" autocomplete="off">
+                    <label for="stage1-input">Enter the coded word:</label>
+                    <input type="text" id="stage1-input" class="input-field" maxlength="8" placeholder="_ _ _ _ _ _ _ _" autocomplete="off" style="text-transform: uppercase; letter-spacing: 0.3em;">
                     <div id="stage1-feedback" class="feedback"></div>
                 </div>
                 <div class="btn-group">
@@ -176,8 +176,8 @@
                 </div>
                 <div id="vault-inputs" class="vault-inputs">
                     <div class="input-group">
-                        <label for="vault-code1">3-Digit Code (Stage 1):</label>
-                        <input type="text" id="vault-code1" class="input-field" maxlength="3" placeholder="_ _ _" autocomplete="off">
+                        <label for="vault-code1">Coded Word (Stage 1):</label>
+                        <input type="text" id="vault-code1" class="input-field" maxlength="8" placeholder="_ _ _ _ _ _ _ _" autocomplete="off" style="text-transform: uppercase; letter-spacing: 0.2em;">
                     </div>
                     <div class="input-group">
                         <label for="vault-code2">4-Character Code (Stage 2):</label>

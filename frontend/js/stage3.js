@@ -15,8 +15,8 @@ async function submitVault() {
     const code2 = code2Input.value.trim();
 
     // Validate inputs
-    if (!code1 || code1.length !== 3) {
-        showFeedback('vault-feedback', '⚠ Enter the 3-digit code from Stage 1.', false);
+    if (!code1 || code1.length !== 8) {
+        showFeedback('vault-feedback', '⚠ Enter the 8-letter coded word from Stage 1.', false);
         code1Input.focus();
         return;
     }
@@ -99,10 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Only allow numbers for code1
+    // Only allow letters for code1
     if (code1) {
         code1.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            e.target.value = e.target.value.replace(/[^A-Za-z]/g, '').toUpperCase();
         });
     }
 });

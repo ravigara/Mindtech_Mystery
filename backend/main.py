@@ -42,7 +42,7 @@ app.add_middleware(
 
 # --- Answer Store (server-side only, never exposed) ---
 ANSWERS = {
-    "stage1": "427",
+    "stage1": "OKPEVFEI",
     "stage2": "A9X3",
     "stage4": "sister",
 }
@@ -83,7 +83,7 @@ def get_client_ip(request: Request) -> str:
 @app.post("/stage1")
 async def validate_stage1(body: Stage1Request):
     """Validate cipher decode answer (3-digit number)."""
-    correct = body.answer.strip() == ANSWERS["stage1"]
+    correct = body.answer.strip().upper() == ANSWERS["stage1"]
     return {"correct": correct}
 
 
@@ -121,7 +121,7 @@ async def validate_vault(body: VaultRequest, request: Request):
         }
 
     # Validate both codes
-    code1_correct = body.code1.strip() == ANSWERS["stage1"]
+    code1_correct = body.code1.strip().upper() == ANSWERS["stage1"]
     code2_correct = body.code2.strip().upper() == ANSWERS["stage2"]
     correct = code1_correct and code2_correct
 
