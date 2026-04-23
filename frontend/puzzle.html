@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sliding Puzzle</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #080c18;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .stats {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .stat {
+            color: #8892a8;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+        .stat span {
+            color: #8b5cf6;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 3px;
+            width: 330px;
+            height: 330px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 3px;
+            border: 2px solid rgba(139, 92, 246, 0.25);
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.1);
+        }
+        .tile {
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid rgba(139, 92, 246, 0.18);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            background-size: 330px 330px;
+        }
+        .tile:hover:not(.empty) {
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.35);
+        }
+        .tile.empty {
+            background: rgba(10, 14, 26, 0.7) !important;
+            cursor: default;
+            border: 2px dashed rgba(255,255,255,0.06);
+        }
+        .tile.empty:hover { border-color: rgba(255,255,255,0.06); box-shadow: none; }
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 22px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(25, 35, 65, 0.7);
+            color: #e8ecf4;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .btn:hover { background: rgba(35, 45, 75, 0.9); border-color: #8b5cf6; }
+        .solved-banner {
+            display: none;
+            text-align: center;
+            color: #00ff88;
+            font-size: 1rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(0,255,136,0.3);
+            padding: 8px;
+            animation: fadeIn 0.5s ease;
+        }
+        .solved-banner.show { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="stats">
+            <div class="stat">MOVES: <span id="moves">0</span></div>
+        </div>
+        <div class="grid" id="grid"></div>
+        <div class="controls">
+            <button class="btn" onclick="shuffle()">🔀 Shuffle</button>
+            <button class="btn" onclick="reset()">🔄 Reset</button>
+        </div>
+        <div class="solved-banner" id="banner">✅ PUZZLE SOLVED — Read the code!</div>
+    </div>
+
+    <script>
+        const SIZE = 3, TOTAL = 9, EMPTY = 8, SHUFFLE_MOVES = 200;
+        let tiles = [], emptyPos = 8, moves = 0, solved = false;
+
+        function init() {
+            tiles = [0,1,2,3,4,5,6,7,8];
+            emptyPos = 8;
+            moves = 0;
+            solved = false;
+            document.getElementById('banner').classList.remove('show');
+            updateMoves();
+        }
+
+        function neighbors(pos) {
+            const r = Math.floor(pos/SIZE), c = pos%SIZE, n = [];
+            if (r > 0) n.push(pos - SIZE);
+            if (r < SIZE-1) n.push(pos + SIZE);
+            if (c > 0) n.push(pos - 1);
+            if (c < SIZE-1) n.push(pos + 1);
+            return n;
+        }
+
+        function shuffle() {
+            init();
+            let last = -1;
+            for (let i = 0; i < SHUFFLE_MOVES; i++) {
+                const ns = neighbors(emptyPos).filter(n => n !== last);
+                const pick = ns[Math.floor(Math.random() * ns.length)];
+                last = emptyPos;
+                [tiles[pick], tiles[emptyPos]] = [tiles[emptyPos], tiles[pick]];
+                emptyPos = pick;
+            }
+            render();
+        }
+
+        function reset() { shuffle(); }
+
+        function render() {
+            const grid = document.getElementById('grid');
+            const gs = grid.offsetWidth || 330;
+            const ts = (gs - 6) / SIZE;
+            grid.innerHTML = '';
+            for (let i = 0; i < TOTAL; i++) {
+                const d = document.createElement('div');
+                d.className = 'tile' + (tiles[i] === EMPTY ? ' empty' : '');
+                if (tiles[i] !== EMPTY) {
+                    const sc = tiles[i] % SIZE, sr = Math.floor(tiles[i] / SIZE);
+                    d.style.backgroundImage = "url('assets/puzzle-image.png')";
+                    d.style.backgroundSize = gs + 'px ' + gs + 'px';
+                    d.style.backgroundPosition = '-' + (sc*ts) + 'px -' + (sr*ts) + 'px';
+                    d.onclick = () => click(i);
+                }
+                grid.appendChild(d);
+            }
+        }
+
+        function click(pos) {
+            if (solved || tiles[pos] === EMPTY) return;
+            if (!neighbors(emptyPos).includes(pos)) return;
+
+            // Animate
+            const grid = document.getElementById('grid');
+            const tileEl = grid.children[pos];
+            const gs = grid.offsetWidth || 330;
+            const cs = gs / SIZE;
+            const fr = Math.floor(pos/SIZE), fc = pos%SIZE;
+            const tr = Math.floor(emptyPos/SIZE), tc = emptyPos%SIZE;
+            tileEl.style.transition = 'transform 0.14s ease-out';
+            tileEl.style.transform = `translate(${(tc-fc)*cs}px, ${(tr-fr)*cs}px)`;
+            tileEl.style.zIndex = '5';
+
+            setTimeout(() => {
+                [tiles[pos], tiles[emptyPos]] = [tiles[emptyPos], tiles[pos]];
+                emptyPos = pos;
+                moves++;
+                updateMoves();
+                render();
+                if (checkSolved()) onSolved();
+            }, 150);
+        }
+
+        function checkSolved() {
+            for (let i = 0; i < TOTAL; i++) if (tiles[i] !== i) return false;
+            return true;
+        }
+
+        function onSolved() {
+            solved = true;
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            const img = document.createElement('div');
+            img.style.cssText = 'width:100%;height:100%;background:url(assets/puzzle-image.png) center/cover;border-radius:8px;grid-column:1/-1;grid-row:1/-1;border:2px solid rgba(0,255,136,0.4);box-shadow:0 0 30px rgba(0,255,136,0.2);';
+            grid.appendChild(img);
+            document.getElementById('banner').classList.add('show');
+        }
+
+        function updateMoves() { document.getElementById('moves').textContent = moves; }
+
+        shuffle();
+    </script>
+</body>
+</html>
