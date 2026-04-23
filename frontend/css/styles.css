@@ -806,6 +806,176 @@ body::after {
     margin: 0 12px 16px;
 }
 
+/* --- Signal Stabilizer (Stage 3 mini-game) --- */
+.signal-stabilizer {
+    display: none;
+    margin-bottom: 24px;
+    padding: 16px 20px 12px;
+    background: rgba(10, 14, 30, 0.6);
+    border: 1px solid rgba(255, 107, 43, 0.12);
+    border-radius: var(--radius-md);
+    transition: border-color 0.3s ease;
+}
+
+.signal-stabilizer.active {
+    display: block;
+    animation: stageEnter 0.4s ease-out;
+}
+
+.stabilizer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.stabilizer-label {
+    font-family: var(--font-code);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: var(--orange);
+    opacity: 0.8;
+}
+
+.stabilizer-status {
+    font-family: var(--font-code);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 2px 10px;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+}
+
+.stabilizer-status.stable {
+    color: var(--green);
+    background: rgba(0, 255, 136, 0.08);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.stabilizer-status.unstable {
+    color: var(--red);
+    background: rgba(255, 45, 85, 0.08);
+    border: 1px solid rgba(255, 45, 85, 0.2);
+}
+
+.stabilizer-status.critical {
+    color: #ff6b6b;
+    background: rgba(255, 45, 85, 0.15);
+    border: 1px solid rgba(255, 45, 85, 0.4);
+    animation: criticalPulse 0.5s ease-in-out infinite;
+}
+
+.stabilizer-status.penalty {
+    color: #fff;
+    background: rgba(255, 45, 85, 0.3);
+    border: 1px solid rgba(255, 45, 85, 0.6);
+}
+
+@keyframes criticalPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* Track */
+.stabilizer-track {
+    position: relative;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stabilizer-track:active {
+    border-color: rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+}
+
+.stabilizer-track.unstable {
+    border-color: rgba(255, 45, 85, 0.2);
+}
+
+.stabilizer-track.warning {
+    border-color: rgba(255, 45, 85, 0.4);
+    animation: trackWarning 0.6s ease-in-out infinite;
+}
+
+.stabilizer-track.penalty {
+    box-shadow: 0 0 20px rgba(255, 45, 85, 0.4);
+}
+
+@keyframes trackWarning {
+    0%, 100% { box-shadow: 0 0 8px rgba(255, 45, 85, 0.1); }
+    50% { box-shadow: 0 0 16px rgba(255, 45, 85, 0.35); }
+}
+
+/* Safe zone */
+.stabilizer-safe-zone {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: rgba(0, 255, 136, 0.06);
+    border-left: 1px solid rgba(0, 255, 136, 0.25);
+    border-right: 1px solid rgba(0, 255, 136, 0.25);
+    pointer-events: none;
+}
+
+/* Warning fill (penalty progress bar) */
+.stabilizer-warning-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg,
+        rgba(255, 45, 85, 0.05),
+        rgba(255, 45, 85, 0.15));
+    pointer-events: none;
+    transition: width 0.1s linear;
+    border-radius: 18px;
+}
+
+/* Moving bar */
+.stabilizer-bar {
+    position: absolute;
+    top: 3px;
+    width: 4px;
+    height: calc(100% - 6px);
+    background: var(--green);
+    border-radius: 2px;
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
+    pointer-events: none;
+    will-change: left, background, box-shadow;
+}
+
+/* Hint text */
+.stabilizer-hint {
+    font-family: var(--font-code);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+}
+
+.stabilizer-hint kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    font-family: var(--font-code);
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    margin: 0 2px;
+}
+
 /* --- Question Display (Stage 4) --- */
 .question-display {
     text-align: center;
