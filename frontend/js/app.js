@@ -135,6 +135,13 @@ function showStage(stage) {
     if (stage === 2) initPuzzle();
     if (stage === 3) initVault();
     if (stage === 'complete') showCompletion();
+
+    // Show/hide Finish button (only during active stages 1–4)
+    const finishBtn = document.getElementById('btn-finish');
+    if (finishBtn) {
+        const showFinish = typeof stage === 'number' && stage >= 1 && stage <= 4;
+        finishBtn.style.display = showFinish ? '' : 'none';
+    }
 }
 
 function canAccessStage(stage) {
@@ -288,6 +295,52 @@ function showFeedback(elementId, message, isSuccess) {
         void el.offsetWidth;
         el.style.animation = '';
     }
+}
+
+// ─── Finish Early ───────────────────────────────────
+function getSolvedCount() {
+    let count = 0;
+    if (gameState.stage1Solved) count++;
+    if (gameState.stage2Solved) count++;
+    if (gameState.stage3Solved) count++;
+    if (gameState.stage4Solved) count++;
+    return count;
+}
+
+function showFinishConfirm() {
+    const solved = getSolvedCount();
+    const modal = document.getElementById('finish-modal');
+    const message = document.getElementById('finish-modal-message');
+    const solvedCount = document.getElementById('modal-solved-count');
+    const timeElapsed = document.getElementById('modal-time-elapsed');
+
+    if (solved === 4) {
+        message.textContent = 'You have solved all 4 stages! Ready to submit your result?';
+    } else if (solved === 0) {
+        message.textContent = 'You haven\'t solved any stages yet. Are you sure you want to finish?';
+    } else {
+        message.textContent = `You have only solved ${solved} out of 4 stages. Unsolved stages will not count. Are you sure?`;
+    }
+
+    solvedCount.textContent = `${solved} / 4`;
+    timeElapsed.textContent = getElapsedTime();
+
+    modal.style.display = 'flex';
+}
+
+function hideFinishConfirm() {
+    const modal = document.getElementById('finish-modal');
+    modal.style.display = 'none';
+}
+
+function confirmFinish() {
+    hideFinishConfirm();
+    stopTimer();
+
+    // Mark as complete and go to completion screen
+    gameState.stage4Solved = true; // allow access to complete screen
+    saveState();
+    showStage('complete');
 }
 
 // ─── Init ───────────────────────────────────────────

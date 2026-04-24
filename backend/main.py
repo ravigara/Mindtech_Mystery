@@ -75,6 +75,7 @@ class TeamCompleteRequest(BaseModel):
     team_number: str
     team_leader_name: str
     time_taken: str
+    stages_solved: int = 4
 
 
 # --- Completed Teams Store (in-memory) ---
@@ -169,6 +170,7 @@ async def register_team_completion(body: TeamCompleteRequest):
         "team_number": body.team_number.strip(),
         "team_leader_name": body.team_leader_name.strip(),
         "time_taken": body.time_taken.strip(),
+        "stages_solved": body.stages_solved,
     }
     completed_teams.append(team_data)
     return {"success": True, "message": "Team result recorded."}

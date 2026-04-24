@@ -12,12 +12,20 @@ function showCompletion() {
         finalTimeEl.textContent = elapsed;
     }
 
+    // Display stages cleared count
+    const solved = getSolvedCount();
+    const finalStagesEl = document.getElementById('final-stages');
+    if (finalStagesEl) {
+        finalStagesEl.textContent = `${solved} / 4`;
+    }
+
     // Submit team result to backend
     if (gameState.teamNumber && gameState.teamLeaderName) {
         apiPost('/team-complete', {
             team_number: gameState.teamNumber,
             team_leader_name: gameState.teamLeaderName,
             time_taken: elapsed,
+            stages_solved: solved,
         }).then(res => {
             if (res.error) {
                 console.warn('Failed to submit team result:', res.error);
