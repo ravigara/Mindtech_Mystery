@@ -8,8 +8,10 @@ Team results are persisted in Upstash Redis (Vercel KV).
 import json
 import os
 import time
+import csv
+import io
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -230,7 +232,7 @@ async def register_team_completion(body: TeamCompleteRequest):
 
 
 @app.get("/teams")
-async def get_completed_teams():
+async def get_completed_teams(format: str = "json"):
     """
     Public endpoint: returns all completed teams sorted by time (fastest first).
     Data is persisted in Upstash Redis and available at any time.
@@ -240,6 +242,26 @@ async def get_completed_teams():
         all_teams,
         key=lambda t: time_str_to_seconds(t.get("time_taken", "99:99")),
     )
+
+    if format.lower() == "csv":
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["Rank", "Team Number", "Team Leader", "Time Taken", "Stages Solved"])
+        for rank, team in enumerate(sorted_teams, 1):
+            writer.writerow([
+                rank,
+                team.get("team_number", ""),
+                team.get("team_leader_name", ""),
+                team.get("time_taken", ""),
+                team.get("stages_solved", 4)
+            ])
+        csv_content = output.getvalue()
+        return Response(
+            content=csv_content,
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=teams_leaderboard.csv"}
+        )
+
     return {
         "total_teams": len(sorted_teams),
         "teams": sorted_teams,
