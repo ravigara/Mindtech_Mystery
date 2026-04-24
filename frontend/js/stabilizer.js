@@ -10,12 +10,11 @@
 
 /* ── Configurable parameters ──────────────────────────── */
 const STABILIZER = {
-    barSpeed:              80,    // base velocity (% per second)
+    barSpeed:              200,   // base velocity (% per second) - fast
     safeZoneWidth:         30,    // % of track width
-    instabilityThreshold:  1800,  // ms of instability before penalty
-    playerForce:           300,   // centering force when holding
-    perturbInterval:       [0.6, 1.8], // random perturbation range (s)
-    maxVelocity:           140,   // cap on velocity (% per second)
+    instabilityThreshold:  800,   // ms of instability before penalty (backs one by one)
+    playerForce:           0,     // centering force when holding (unused in new logic)
+    brakeSpeedMultiplier:  0.25,  // slow down to 25% speed when holding in green
 };
 
 /* ── Internal state ───────────────────────────────────── */
@@ -61,8 +60,6 @@ function startStabilizer() {
     _barVel      = STABILIZER.barSpeed * (Math.random() > 0.5 ? 1 : -1);
     _isStable    = true;
     _unstableMs  = 0;
-    _perturbTimer = 0;
-    _nextPerturb = _randRange(...STABILIZER.perturbInterval);
     _lastInput   = 'vault-code2';
     _penaltyFlash = 0;
 
@@ -126,45 +123,28 @@ function _stabLoop(now) {
         return;
     }
 
-    /* ── Random perturbation ── */
-    _perturbTimer += dt;
-    if (_perturbTimer >= _nextPerturb) {
-        _barVel += (Math.random() - 0.5) * STABILIZER.barSpeed * 1.2;
-        _perturbTimer = 0;
-        _nextPerturb = _randRange(...STABILIZER.perturbInterval);
-    }
-
-    /* ── Player counteraction ── */
+    /* ── Player counteraction & Speed control ── */
+    let currentSpeed = STABILIZER.barSpeed;
+    
     if (_holding) {
         const safeStart = (100 - STABILIZER.safeZoneWidth) / 2;
         const safeEnd   = safeStart + STABILIZER.safeZoneWidth;
         const inSafe    = _barPos >= safeStart && _barPos <= safeEnd;
 
+        // "if the participant holds the bar during green region it slows downs but continues to move towards the direction"
         if (inSafe) {
-            // In safe zone: apply friction to slow it down.
-            // No centering pull — it will just decelerate and keep drifting slowly.
-            _barVel *= (1 - 6.0 * dt);
-        } else {
-            // Outside safe zone: strong push toward centre so it comes back fast
-            const dir = 50 - _barPos;
-            _barVel += Math.sign(dir) * STABILIZER.playerForce * dt;
-            _barVel *= (1 - 1.5 * dt);
+            currentSpeed = STABILIZER.barSpeed * STABILIZER.brakeSpeedMultiplier;
         }
     }
 
     /* ── Apply velocity ── */
+    // Ensure we maintain direction (left or right)
+    _barVel = currentSpeed * Math.sign(_barVel || 1);
     _barPos += _barVel * dt;
 
     // Bounce off edges
     if (_barPos <= 0)   { _barPos = 0;   _barVel =  Math.abs(_barVel); }
-    if (_barPos >= 100) { _barPos = 100;  _barVel = -Math.abs(_barVel); }
-
-    // Light friction
-    _barVel *= (1 - 0.3 * dt);
-
-    // Clamp velocity
-    _barVel = Math.max(-STABILIZER.maxVelocity,
-                       Math.min(STABILIZER.maxVelocity, _barVel));
+    if (_barPos >= 100) { _barPos = 100; _barVel = -Math.abs(_barVel); }
 
     /* ── Stability check ── */
     const safeStart = (100 - STABILIZER.safeZoneWidth) / 2;

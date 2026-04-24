@@ -14,7 +14,7 @@ function showCompletion() {
 
     // Display stages cleared count
     const solved = getSolvedCount();
-    const finalStagesEl = document.getElementById('final-stages');
+    const finalStagesEl = document.getElementById('final-stages-subtitle');
     if (finalStagesEl) {
         finalStagesEl.textContent = `${solved} / 4`;
     }
