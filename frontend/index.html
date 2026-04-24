@@ -73,6 +73,30 @@
             </div>
         </section>
 
+        <!-- Team Details Registration -->
+        <section id="stage-team-details" class="stage">
+            <div class="stage-card team-details-card">
+                <div class="team-details-icon">👥</div>
+                <h2 class="team-details-title">Register Your Team</h2>
+                <p class="team-details-subtitle">Enter your team details before the mission begins</p>
+                <div class="team-form">
+                    <div class="input-group">
+                        <label for="team-number-input">Team Number</label>
+                        <input type="text" id="team-number-input" class="input-field team-input" placeholder="e.g. 01" autocomplete="off" maxlength="10" style="letter-spacing: 0.2em;">
+                    </div>
+                    <div class="input-group">
+                        <label for="team-leader-input">Team Leader Name</label>
+                        <input type="text" id="team-leader-input" class="input-field team-input" placeholder="Enter name..." autocomplete="off" maxlength="50" style="letter-spacing: 0.1em;">
+                    </div>
+                    <div id="team-details-feedback" class="feedback"></div>
+                    <button id="btn-begin-mission" class="btn btn-primary btn-glow" onclick="submitTeamDetails()">
+                        <span>🚀 Begin Mission</span>
+                        <span class="btn-shimmer"></span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <!-- Stage 1: Coded Language -->
         <section id="stage-1" class="stage">
             <div class="stage-card">

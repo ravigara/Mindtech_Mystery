@@ -1,13 +1,30 @@
 /**
  * Completion Screen
  * Shows final time, confetti animation, and restart option.
+ * Submits team result to the backend for the leaderboard.
  */
 
 function showCompletion() {
     // Display final time
     const finalTimeEl = document.getElementById('final-time');
+    const elapsed = getElapsedTime();
     if (finalTimeEl) {
-        finalTimeEl.textContent = getElapsedTime();
+        finalTimeEl.textContent = elapsed;
+    }
+
+    // Submit team result to backend
+    if (gameState.teamNumber && gameState.teamLeaderName) {
+        apiPost('/team-complete', {
+            team_number: gameState.teamNumber,
+            team_leader_name: gameState.teamLeaderName,
+            time_taken: elapsed,
+        }).then(res => {
+            if (res.error) {
+                console.warn('Failed to submit team result:', res.error);
+            } else {
+                console.log('Team result submitted successfully');
+            }
+        });
     }
 
     // Launch confetti
@@ -36,3 +53,4 @@ function launchConfetti() {
         container.appendChild(piece);
     }
 }
+

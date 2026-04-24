@@ -1004,6 +1004,51 @@ body::after {
     font-style: italic;
 }
 
+/* --- Team Details Card --- */
+.team-details-card {
+    text-align: center;
+}
+
+.team-details-icon {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.team-details-title {
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--cyan), var(--magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.team-details-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-bottom: 32px;
+}
+
+.team-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.team-form .input-group {
+    width: 100%;
+    max-width: 380px;
+}
+
+.team-input {
+    letter-spacing: 0.15em !important;
+    max-width: 380px !important;
+}
+
 /* --- Completion Screen --- */
 .completion-card {
     text-align: center;

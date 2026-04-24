@@ -17,11 +17,14 @@ from main import (
     validate_stage2,
     validate_vault,
     validate_stage4,
+    register_team_completion,
+    get_completed_teams,
     health_check,
     Stage1Request,
     Stage2Request,
     VaultRequest,
     Stage4Request,
+    TeamCompleteRequest,
 )
 
 # Create a new app mounted at /api so Vercel routing works correctly
@@ -42,4 +45,6 @@ app.post("/api/stage1")(validate_stage1)
 app.post("/api/stage2")(validate_stage2)
 app.post("/api/vault")(validate_vault)
 app.post("/api/stage4")(validate_stage4)
+app.post("/api/team-complete")(register_team_completion)
+app.get("/api/teams")(get_completed_teams)
 app.get("/api/health")(health_check)

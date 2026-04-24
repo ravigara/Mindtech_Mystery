@@ -71,12 +71,33 @@ class Stage4Request(BaseModel):
     answer: str
 
 
+class TeamCompleteRequest(BaseModel):
+    team_number: str
+    team_leader_name: str
+    time_taken: str
+
+
+# --- Completed Teams Store (in-memory) ---
+completed_teams: list[dict] = []
+
+
 # --- Helper ---
 def get_client_ip(request: Request) -> str:
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host if request.client else "unknown"
+
+
+def time_str_to_seconds(time_str: str) -> int:
+    """Convert MM:SS format to total seconds for sorting."""
+    try:
+        parts = time_str.strip().split(":")
+        if len(parts) == 2:
+            return int(parts[0]) * 60 + int(parts[1])
+    except (ValueError, IndexError):
+        pass
+    return 999999
 
 
 # --- Endpoints ---
@@ -141,7 +162,35 @@ async def validate_stage4(body: Stage4Request):
     return {"correct": correct}
 
 
+@app.post("/team-complete")
+async def register_team_completion(body: TeamCompleteRequest):
+    """Register a team's completion with their total time."""
+    team_data = {
+        "team_number": body.team_number.strip(),
+        "team_leader_name": body.team_leader_name.strip(),
+        "time_taken": body.time_taken.strip(),
+    }
+    completed_teams.append(team_data)
+    return {"success": True, "message": "Team result recorded."}
+
+
+@app.get("/teams")
+async def get_completed_teams():
+    """
+    Public endpoint: returns all completed teams sorted by time (fastest first).
+    """
+    sorted_teams = sorted(
+        completed_teams,
+        key=lambda t: time_str_to_seconds(t["time_taken"]),
+    )
+    return {
+        "total_teams": len(sorted_teams),
+        "teams": sorted_teams,
+    }
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
     return {"status": "ok", "message": "MindTech Mystery API is running"}
+

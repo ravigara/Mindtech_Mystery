@@ -17,7 +17,7 @@ const API_BASE = getApiBaseUrl();
 const STATE_KEY = 'mindtech_mystery_state';
 
 let gameState = {
-    currentStage: 'intro', // 'intro', 1, 2, 3, 4, 'complete'
+    currentStage: 'intro', // 'intro', 'team-details', 1, 2, 3, 4, 'complete'
     startTime: null,
     stage1Solved: false,
     stage2Solved: false,
@@ -25,6 +25,8 @@ let gameState = {
     stage4Solved: false,
     stage1Answer: null,
     stage2Answer: null,
+    teamNumber: null,
+    teamLeaderName: null,
 };
 
 let timerInterval = null;
@@ -59,6 +61,8 @@ function clearState() {
         stage4Solved: false,
         stage1Answer: null,
         stage2Answer: null,
+        teamNumber: null,
+        teamLeaderName: null,
     };
 }
 
@@ -108,6 +112,7 @@ function showStage(stage) {
 
     // Show target stage
     const stageId = stage === 'intro' ? 'stage-intro' :
+                    stage === 'team-details' ? 'stage-team-details' :
                     stage === 'complete' ? 'stage-complete' :
                     `stage-${stage}`;
     const stageEl = document.getElementById(stageId);
@@ -134,7 +139,8 @@ function showStage(stage) {
 
 function canAccessStage(stage) {
     if (stage === 'intro') return true;
-    if (stage === 1) return true;
+    if (stage === 'team-details') return true;
+    if (stage === 1) return gameState.teamNumber && gameState.teamLeaderName;
     if (stage === 2) return gameState.stage1Solved;
     if (stage === 3) return gameState.stage2Solved;
     if (stage === 4) return gameState.stage3Solved;
@@ -147,6 +153,30 @@ function goToStage(stage) {
 }
 
 function startGame() {
+    showStage('team-details');
+}
+
+function submitTeamDetails() {
+    const teamNumberInput = document.getElementById('team-number-input');
+    const teamLeaderInput = document.getElementById('team-leader-input');
+    const teamNumber = teamNumberInput.value.trim();
+    const teamLeader = teamLeaderInput.value.trim();
+
+    if (!teamNumber) {
+        showFeedback('team-details-feedback', '⚠ Please enter your team number.', false);
+        teamNumberInput.focus();
+        return;
+    }
+    if (!teamLeader) {
+        showFeedback('team-details-feedback', '⚠ Please enter the team leader name.', false);
+        teamLeaderInput.focus();
+        return;
+    }
+
+    gameState.teamNumber = teamNumber;
+    gameState.teamLeaderName = teamLeader;
+    saveState();
+
     showStage(1);
     startTimer();
 }
@@ -157,7 +187,7 @@ function restartGame() {
     document.getElementById('timer').textContent = '00:00';
 
     // Reset all inputs and feedback
-    document.querySelectorAll('.input-field').forEach(i => i.value = '');
+    document.querySelectorAll('.input-field').forEach(i => { i.value = ''; i.disabled = false; });
     document.querySelectorAll('.feedback').forEach(f => { f.textContent = ''; f.className = 'feedback'; });
 
     // Reset buttons
