@@ -2,8 +2,10 @@
 MindTech Mystery – FastAPI Backend
 Handles answer validation for all puzzle stages.
 Correct answers are stored server-side only.
+Team results are persisted in Upstash Redis (Vercel KV).
 """
 
+import json
 import os
 import time
 
@@ -12,6 +14,61 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI(title="MindTech Mystery API", version="1.0.0")
+
+
+# --- Redis / Upstash KV Setup ---
+REDIS_KEY = "mindtech:completed_teams"
+
+_redis_client = None
+
+
+def get_redis():
+    """Lazy-initialize the Upstash Redis client."""
+    global _redis_client
+    if _redis_client is not None:
+        return _redis_client
+
+    url = os.getenv("KV_REST_API_URL") or os.getenv("UPSTASH_REDIS_REST_URL")
+    token = os.getenv("KV_REST_API_TOKEN") or os.getenv("UPSTASH_REDIS_REST_TOKEN")
+
+    if url and token:
+        try:
+            from upstash_redis import Redis
+            _redis_client = Redis(url=url, token=token)
+            return _redis_client
+        except Exception as e:
+            print(f"[WARN] Failed to initialize Redis: {e}")
+
+    return None
+
+
+# --- In-memory fallback (local dev only) ---
+_local_teams: list[dict] = []
+
+
+def save_team(team_data: dict):
+    """Save a team result to Redis (persistent) or in-memory (fallback)."""
+    redis = get_redis()
+    if redis:
+        redis.rpush(REDIS_KEY, json.dumps(team_data))
+    else:
+        _local_teams.append(team_data)
+
+
+def load_all_teams() -> list[dict]:
+    """Load all completed team results from Redis or in-memory."""
+    redis = get_redis()
+    if redis:
+        raw_list = redis.lrange(REDIS_KEY, 0, -1)
+        teams = []
+        for item in raw_list:
+            if isinstance(item, str):
+                teams.append(json.loads(item))
+            elif isinstance(item, dict):
+                teams.append(item)
+        return teams
+    else:
+        return list(_local_teams)
 
 
 def get_allowed_origins() -> list[str]:
@@ -76,10 +133,6 @@ class TeamCompleteRequest(BaseModel):
     team_leader_name: str
     time_taken: str
     stages_solved: int = 4
-
-
-# --- Completed Teams Store (in-memory) ---
-completed_teams: list[dict] = []
 
 
 # --- Helper ---
@@ -165,14 +218,14 @@ async def validate_stage4(body: Stage4Request):
 
 @app.post("/team-complete")
 async def register_team_completion(body: TeamCompleteRequest):
-    """Register a team's completion with their total time."""
+    """Register a team's completion. Persisted in Upstash Redis."""
     team_data = {
         "team_number": body.team_number.strip(),
         "team_leader_name": body.team_leader_name.strip(),
         "time_taken": body.time_taken.strip(),
         "stages_solved": body.stages_solved,
     }
-    completed_teams.append(team_data)
+    save_team(team_data)
     return {"success": True, "message": "Team result recorded."}
 
 
@@ -180,10 +233,12 @@ async def register_team_completion(body: TeamCompleteRequest):
 async def get_completed_teams():
     """
     Public endpoint: returns all completed teams sorted by time (fastest first).
+    Data is persisted in Upstash Redis and available at any time.
     """
+    all_teams = load_all_teams()
     sorted_teams = sorted(
-        completed_teams,
-        key=lambda t: time_str_to_seconds(t["time_taken"]),
+        all_teams,
+        key=lambda t: time_str_to_seconds(t.get("time_taken", "99:99")),
     )
     return {
         "total_teams": len(sorted_teams),
@@ -194,5 +249,10 @@ async def get_completed_teams():
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "ok", "message": "MindTech Mystery API is running"}
+    redis = get_redis()
+    return {
+        "status": "ok",
+        "message": "MindTech Mystery API is running",
+        "storage": "redis" if redis else "in-memory (local dev)",
+    }
 
